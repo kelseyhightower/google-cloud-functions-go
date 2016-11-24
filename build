@@ -1,0 +1,15 @@
+#!/bin/bash
+
+CGO_ENABLED=0 GOOS=linux go build -a \
+  --ldflags '-extldflags "-static"' \
+  -tags netgo -installsuffix netgo \
+  -buildmode=plugin \
+  function.go 
+
+GOOS=linux go build -a \
+  --ldflags '-extldflags "-static"' \
+  -tags netgo -installsuffix netgo \
+  -o go-http-shim \
+  cmd/go-http-shim/main.go
+
+zip -r go-serverless.zip go-http-shim function.so index.js
