@@ -46,21 +46,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fi, err := os.Stdin.Stat()
+	body, err := ioutil.ReadAll(os.Stdin)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	var b bytes.Buffer
-	if fi.Size() > 0 {
-		body, err := ioutil.ReadAll(os.Stdin)
-		if err != nil {
-			log.Fatal(err)
-		}
-		b.Write(body)
-	}
-
-	r := httptest.NewRequest(method, url, &b)
+	r := httptest.NewRequest(method, url, bytes.NewBuffer(body))
 	w := httptest.NewRecorder()
 
 	f.(func(http.ResponseWriter, *http.Request))(w, r)
