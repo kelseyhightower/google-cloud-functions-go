@@ -23,7 +23,19 @@ import (
 	"plugin"
 )
 
+var (
+	method = "GET"
+	url    = "http://127.0.0.1"
+)
+
 func main() {
+	if os.Getenv("GCF_HTTP_URL") != "" {
+		url = os.Getenv("GCF_HTTP_URL")
+	}
+	if os.Getenv("GCF_HTTP_METHOD") != "" {
+		method = os.Getenv("GCF_HTTP_METHOD")
+	}
+
 	p, err := plugin.Open("function.so")
 	if err != nil {
 		log.Fatal(err)
@@ -34,12 +46,21 @@ func main() {
 		log.Fatal(err)
 	}
 
-	body, err := ioutil.ReadAll(os.Stdin)
+	fi, err := os.Stdin.Stat()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	r := httptest.NewRequest(os.Getenv("GCF_HTTP_METHOD"), os.Getenv("GCF_HTTP_URL"), bytes.NewBuffer(body))
+	var b bytes.Buffer
+	if fi.Size() > 0 {
+		body, err := ioutil.ReadAll(os.Stdin)
+		if err != nil {
+			log.Fatal(err)
+		}
+		b.Write(body)
+	}
+
+	r := httptest.NewRequest(method, url, &b)
 	w := httptest.NewRecorder()
 
 	f.(func(http.ResponseWriter, *http.Request))(w, r)

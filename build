@@ -1,4 +1,4 @@
 #!/bin/bash
-/home/khightower/go/bin/go build -buildmode=plugin function.go 
-/home/khightower/go/bin/go build -o go-http-shim cmd/go-http-shim/main.go
+go build -buildmode=plugin function.go 
+go build -o go-http-shim cmd/go-http-shim/main.go
 zip -r go-serverless.zip go-http-shim function.so index.js

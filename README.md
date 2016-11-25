@@ -44,21 +44,6 @@ In separate terminal start the `go-http-shim` server:
 go-http-shim
 ```
 
-Make a HTTP request on the `/tmp/go-http-shim.sock` unix socket:
-
-```
-curl -i --unix-socket /tmp/go-http-shim.sock http://unix/
-```
-
-```
-HTTP/1.1 200 OK
-Date: Thu, 24 Nov 2016 17:41:47 GMT
-Content-Length: 29
-Content-Type: text/plain; charset=utf-8
-
-{"message": "Go Serverless!"}
-```
-
 At this point everything is working. Now we need to package our function and the shim for use with Google Cloud Functions.
 
 ## Google Cloud Functions
