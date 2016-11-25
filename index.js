@@ -15,12 +15,28 @@ exports.helloGET = function helloGET(req, res) {
       break;
   }
 
+  var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
+  var httpRequest = {
+    'body': requestBody,
+    'header': req.headers,
+    'method': req.method,
+    'remote_addr': req.ip,
+    'url': fullUrl
+  };
+
   result = spawnSync('./go-http-shim', [], {
-    input: requestBody,
+    input: JSON.stringify(httpRequest),
     stdio: 'pipe',
-    env: {'GCF_HTTP_URL': 'http://example.com', 'GCF_HTTP_METHOD': req.method}
   });
 
-  res.status(200);
-  res.send(result.stdout);
+  if (result.status !== 0) {
+     console.log(result.stderr.toString());
+     res.status(500);
+     res.send(result.stderr.toString());
+     return;
+  }
+
+  data = JSON.parse(result.stdout);
+  res.status(data.status_code);
+  res.send(data.body);
 };

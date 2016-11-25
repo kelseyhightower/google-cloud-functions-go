@@ -1,0 +1,7 @@
+{
+  "body": "Go Serverless!",
+  "header": {"Agent": ["Go"]},
+  "method": "GET",
+  "remoteAddr": "127.0.0.1",
+  "url": "http://127.0.0.1:80"
+}

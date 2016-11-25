@@ -1,26 +1,13 @@
-// go-http-shim loads external Go plugins that meet the following
-// specification:
-//
-//   - plugins must be named "function.so"
-//   - plugins must export the following function:
-//       F(w http.ResponseWriter, r *http.Request)
-//
-// External plugin can be built with the following command:
-//
-//    go build -buildmode=plugin function.go
-//
-
 package main
 
 import (
 	"bytes"
-	"io"
+	"encoding/json"
 	"io/ioutil"
 	"log"
-	"net/http"
 	"net/http/httptest"
 	"os"
-	"plugin"
+	"strings"
 )
 
 var (
@@ -28,33 +15,58 @@ var (
 	url    = "http://127.0.0.1"
 )
 
+type HTTPRequest struct {
+	Body       string            `json:"body"`
+	Header     map[string]string `json:"header"`
+	Method     string            `json:"method"`
+	RemoteAddr string            `json:"remote_addr"`
+	URL        string            `json:"url"`
+}
+
+type HTTPResponse struct {
+	Body       string            `json:"body"`
+	Header     map[string]string `json:"header"`
+	StatusCode int               `json:"status_code"`
+}
+
 func main() {
-	if os.Getenv("GCF_HTTP_URL") != "" {
-		url = os.Getenv("GCF_HTTP_URL")
+	stdin, err := ioutil.ReadAll(os.Stdin)
+	if err != nil {
+		log.Fatal(err)
 	}
-	if os.Getenv("GCF_HTTP_METHOD") != "" {
-		method = os.Getenv("GCF_HTTP_METHOD")
-	}
-
-	p, err := plugin.Open("function.so")
+	var httpRequest HTTPRequest
+	err = json.Unmarshal(stdin, &httpRequest)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	f, err := p.Lookup("F")
-	if err != nil {
-		log.Fatal(err)
+	r := httptest.NewRequest(httpRequest.Method, httpRequest.URL, bytes.NewBufferString(httpRequest.Body))
+	for k, v := range httpRequest.Header {
+		r.Header.Add(k, v)
 	}
 
-	body, err := ioutil.ReadAll(os.Stdin)
-	if err != nil {
-		log.Fatal(err)
-	}
+	r.RemoteAddr = httpRequest.RemoteAddr
 
-	r := httptest.NewRequest(method, url, bytes.NewBuffer(body))
 	w := httptest.NewRecorder()
 
-	f.(func(http.ResponseWriter, *http.Request))(w, r)
+	F(w, r)
 
-	io.WriteString(os.Stdout, w.Body.String())
+	resp := w.Result()
+
+	header := make(map[string]string)
+	for k, v := range resp.Header {
+		header[k] = strings.Join(v, ",") 
+	}
+	httpResponse := HTTPResponse{
+		Body:       w.Body.String(),
+		Header:     header,
+		StatusCode: resp.StatusCode,
+	}
+
+	out, err := json.Marshal(&httpResponse)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println(string(out))
+	os.Stdout.Write(out)
 }
