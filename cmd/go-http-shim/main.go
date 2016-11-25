@@ -10,11 +10,6 @@ import (
 	"strings"
 )
 
-var (
-	method = "GET"
-	url    = "http://127.0.0.1"
-)
-
 type HTTPRequest struct {
 	Body       string            `json:"body"`
 	Header     map[string]string `json:"header"`
@@ -55,7 +50,7 @@ func main() {
 
 	header := make(map[string]string)
 	for k, v := range resp.Header {
-		header[k] = strings.Join(v, ",") 
+		header[k] = strings.Join(v, ",")
 	}
 	httpResponse := HTTPResponse{
 		Body:       w.Body.String(),
@@ -67,6 +62,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println(string(out))
+
 	os.Stdout.Write(out)
 }
