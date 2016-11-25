@@ -32,7 +32,6 @@ exports.helloGET = function helloGET(req, res) {
   if (result.status !== 0) {
      console.log(result.stderr.toString());
      res.status(500);
-     res.send(result.stderr.toString());
      return;
   }
 
