@@ -13,13 +13,15 @@
 package main
 
 import (
+	"bytes"
+	"io"
+	"io/ioutil"
 	"log"
-	"net"
 	"net/http"
+	"net/http/httptest"
+	"os"
 	"plugin"
 )
-
-const socket = "/tmp/go-http-shim.sock"
 
 func main() {
 	p, err := plugin.Open("function.so")
@@ -32,15 +34,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	m := http.NewServeMux()
-	m.HandleFunc("/", f.(func(http.ResponseWriter, *http.Request)))
-
-	l, err := net.Listen("unix", socket)
+	body, err := ioutil.ReadAll(os.Stdin)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if err := http.Serve(l, m); err != nil {
-		log.Fatal(err)
-	}
+	r := httptest.NewRequest(os.Getenv("GCF_HTTP_METHOD"), os.Getenv("GCF_HTTP_URL"), bytes.NewBuffer(body))
+	w := httptest.NewRecorder()
+
+	f.(func(http.ResponseWriter, *http.Request))(w, r)
+
+	io.WriteString(os.Stdout, w.Body.String())
 }

@@ -1,15 +1,16 @@
 package main
 
-import "C"
-
 import (
-	"io"
-	"log"
+	"C"
+	"io/ioutil"
 	"net/http"
 )
 
 func F(w http.ResponseWriter, r *http.Request) {
-	log.Println(r.Body)
-	io.WriteString(w, r.Method)
-	io.WriteString(w, `{"message": "Go Serverless!"}`)
+	d, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(500)
+		return
+	}
+	w.Write(d)
 }

@@ -1,13 +1,6 @@
-const spawn = require('child_process').spawn;
-var request = require('request');
-var bodyParser = require('body-parser');
+const spawnSync = require('child_process').spawnSync;
 
 exports.helloGET = function helloGET(req, res) {
-  const child = spawn('./go-http-shim', [], {
-    detached: true,
-    stdio: 'ignore'
-  });
-
   var requestBody;
 
   switch (req.get('content-type')) {
@@ -22,20 +15,12 @@ exports.helloGET = function helloGET(req, res) {
       break;
   }
 
-  request({
-    url: 'http://unix:/tmp/go-http-shim.sock:/',
-    method: req.method,
-    headers: {
-      'User-Agent': req.get('User-Agent'),
-      'Host': req.hostname
-    },
-    body: requestBody 
-  },
-  function (error, response, body) {
-    if (error) {
-      console.log(error);
-    }
-    res.status(response.statusCode);
-    res.send(body);
+  result = spawnSync('./go-http-shim', [], {
+    input: requestBody,
+    stdio: 'pipe',
+    env: {'GCF_HTTP_URL': 'http://example.com', 'GCF_HTTP_METHOD': req.method}
   });
+
+  res.status(200);
+  res.send(result.stdout);
 };
