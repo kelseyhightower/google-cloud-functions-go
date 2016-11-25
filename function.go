@@ -1,10 +1,14 @@
 package main
 
 import (
-	"C"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 )
+
+type response struct {
+	Message string `json:"message"`
+}
 
 func F(w http.ResponseWriter, r *http.Request) {
 	d, err := ioutil.ReadAll(r.Body)
@@ -12,5 +16,8 @@ func F(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(500)
 		return
 	}
-	w.Write(d)
+	if err := json.NewEncoder(w).Encode(response{Message: string(d)}); err != nil {
+		w.WriteHeader(500)
+		return
+	}
 }
