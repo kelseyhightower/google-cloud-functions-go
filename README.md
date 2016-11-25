@@ -75,3 +75,16 @@ updating: index.js (deflated 46%)
 ```
 
 Upload `go-serverless.zip` and set the function to execute to `helloGET`
+
+Once the function is deployed [invoke it with an HTTP trigger](https://cloud.google.com/functions/docs/calling/http)
+
+Example:
+
+```
+curl -X POST https://us-central1-hightowerlabs.cloudfunctions.net/go-serverless \
+  -H "Content-Type: text/plain" \
+  --data 'Go Serverless!'
+```
+```
+{"message":"Go Serverless!"}
+```
