@@ -55,6 +55,7 @@ At this point everything is working. Now we need to package our function and the
 Package the `function` binary and the `index.js` shim:
 
 ```
+GOOS=linux go build -o function .
 zip -r go-serverless.zip function index.js
 ```
 ```
