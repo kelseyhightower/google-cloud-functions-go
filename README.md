@@ -2,11 +2,6 @@
 
 This project contains a collection of tutorials and hacks for using Go with [Google Cloud Functions](https://cloud.google.com/functions).
 
-## Requirements
-
- - Linux
- - Go 1.8
-
 ## Usage
 
 Save the following source code to a file named `function.go`:
@@ -37,41 +32,34 @@ func F(w http.ResponseWriter, r *http.Request) {
 }
 ```
 
-Build the `function.so` plugin:
+Build the `function` binary:
 
 ```
-go build -buildmode=plugin function.go
-```
-
-Build the `go-http-shim` binary:
-
-```
-go build -o go-http-shim cmd/go-http-shim/main.go
+cp cmd/go-http-shim/main.go . 
+go build -o function .
 ```
 
 ### Testing your function
 
-In separate terminal start the `go-http-shim` server:
-
 ```
-echo "Go Serverless!" | go-http-shim 
+cat request.json | function
 ```
 ```
-{"message":"Go Serverless!"}
+{"body":"{\"message\":\"Go Serverless!\"}\n","header":{"Content-Type":"text/plain; charset=utf-8"},"status_code":200}
 ```
 
 At this point everything is working. Now we need to package our function and the shim for use with Google Cloud Functions.
 
 ## Google Cloud Functions
 
-```
-zip -r go-serverless.zip go-http-shim function.so index.js
-```
+Package the `function` binary and the `index.js` shim:
 
 ```
-updating: go-http-shim (deflated 68%)
-updating: function.so (deflated 71%)
-updating: index.js (deflated 46%)
+zip -r go-serverless.zip function index.js
+```
+```
+updating: function (deflated 65%)
+updating: index.js (deflated 53%)
 ```
 
 Upload `go-serverless.zip` and set the function to execute to `helloGET`

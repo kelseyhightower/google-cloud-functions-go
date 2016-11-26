@@ -24,7 +24,7 @@ exports.helloGET = function helloGET(req, res) {
     'url': fullUrl
   };
 
-  result = spawnSync('./go-http-shim', [], {
+  result = spawnSync('./function', [], {
     input: JSON.stringify(httpRequest),
     stdio: 'pipe',
   });

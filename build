@@ -1,4 +1,5 @@
 #!/bin/bash
-go build -buildmode=plugin function.go 
-go build -o go-http-shim cmd/go-http-shim/main.go
-zip -r go-serverless.zip go-http-shim function.so index.js
+cp cmd/go-http-shim/main.go . 
+go build -o function .
+zip -r go-serverless.zip function index.js
+rm main.go
