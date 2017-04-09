@@ -1,6 +1,6 @@
 #!/bin/sh
 
-GOOS=linux go build -o google-cloud-functions-go .
+go build -o google-cloud-functions-go ./shim
 go-bindata -o bindata.go google-cloud-functions-go
 rm google-cloud-functions-go
 
