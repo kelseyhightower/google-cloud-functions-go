@@ -19,53 +19,69 @@ import (
 	"io"
 	"log"
 	"os"
+	"os/exec"
 	"path"
 	"time"
 )
 
 var (
-	entryPoint string
-	eventType  string
-	pluginPath string
+	entryPoint     string
+	eventType      string
+	outputFilename string
+	pluginPath     string
+	shimPath       string
 )
 
+func generateOutputFilename() string {
+	return fmt.Sprintf("%s-%s-%d.zip", entryPoint, eventType, time.Now().Unix())
+}
+
 func main() {
-	flag.StringVar(&entryPoint, "entry-point", "F", "the name of a Go function that will be executed when the Google Cloud Function is triggered.")
-	flag.StringVar(&eventType, "event-type", "", "The Google Cloud Function event type. [http|event]")
-	flag.StringVar(&pluginPath, "plugin-path", "function.so", "The path to the Go plugin that exports the function to be executed.")
+	flag.StringVar(&entryPoint, "entry-point", "F", "the name of a Go function that will be executed when the Cloud Function is triggered.")
+	flag.StringVar(&eventType, "event-type", "event", "The Cloud Function event type: http or event")
+	flag.StringVar(&outputFilename, "o", generateOutputFilename(), "The output file name.")
+	flag.StringVar(&pluginPath, "plugin-path", "functions.so", "The path to the Go plugin that exports the function to be executed.")
+	flag.StringVar(&shimPath, "shim-path", "cloud-functions-go-shim", "The path to the cloud-functions-go-shim binary.")
 	flag.Parse()
 
-	if eventType == "" {
-		log.Fatal("Event type required; set using the --event-type flag.")
+	// Set the log format to basic to omit timestamps.
+	log.SetFlags(0)
+
+	var err error
+
+	shimPath, err = exec.LookPath(shimPath)
+	if err != nil {
+		log.Fatalf("unable to locate the cloud-functions-go-shim binary: %s", err)
 	}
 
-	packageName := fmt.Sprintf("%s-%s-%d.zip", entryPoint, eventType, time.Now().Unix())
-
-	zipfile, err := os.Create(packageName)
+	zipfile, err := os.Create(outputFilename)
 	if err != nil {
-		log.Fatalf("unable to create %s: %s", packageName, err)
+		log.Fatalf("unable to create %s: %s", outputFilename, err)
 	}
 	defer zipfile.Close()
 
 	archive := zip.NewWriter(zipfile)
 
-	jsOutput, err := archive.Create("index.js")
+	// Add the index.js file to the zip archive.
+
+	// Generate the node.js shim based on the event type.
+	nodejsShim, err := archive.Create("index.js")
 	if err != nil {
-		log.Fatalf("unable to create %s: %s", packageName, err)
+		log.Fatalf("unable to generate the node.js shim: %s", err)
 	}
 
-	var js string
+	var tmpl string
 
 	switch eventType {
 	case "event":
-		js = eventJavascriptShim
+		tmpl = nodejsEventTemplate
 	case "http":
-		js = httpJavascriptShim
+		tmpl = nodejsHTTPTemplate
 	}
 
-	t, err := template.New("js").Parse(js)
+	t, err := template.New("index.js").Parse(tmpl)
 	if err != nil {
-		log.Fatalf("unable to generated javascript shim: %s", err)
+		log.Fatalf("unable to generated the node.js shim: %s", err)
 	}
 
 	data := struct {
@@ -78,57 +94,64 @@ func main() {
 		PluginPath: path.Base(pluginPath),
 	}
 
-	t.Execute(jsOutput, data)
+	t.Execute(nodejsShim, data)
 
+	// Add the Go plugin to the zip archive.
 	functions, err := archive.Create(path.Base(pluginPath))
 	if err != nil {
-		log.Fatalf("unable to create %s: %s", packageName, err)
+		log.Fatalf("unable to create %s: %s", outputFilename, err)
 	}
 
-	targetPlugin, err := os.Open(pluginPath)
+	p, err := os.Open(pluginPath)
 	if err != nil {
-		log.Fatalf("unable to create %s: %s", packageName, err)
+		log.Fatalf("unable to create %s: %s", outputFilename, err)
 	}
-	defer targetPlugin.Close()
+	defer p.Close()
 
-	_, err = io.Copy(functions, targetPlugin)
+	_, err = io.Copy(functions, p)
 	if err != nil {
-		log.Fatalf("unable to create %s: %s", packageName, err)
-	}
-
-	info, err := AssetInfo("google-cloud-functions-go")
-	if err != nil {
-		log.Fatalf("unable to create %s: %s", packageName, err)
+		log.Fatalf("unable to create %s: %s", outputFilename, err)
 	}
 
-	header, err := zip.FileInfoHeader(info)
+	// Add the cloud-functions-go-shim binary to the zip archive.
+	shimFile, err := os.Open(shimPath)
 	if err != nil {
-		log.Fatalf("unable to create %s: %s", packageName, err)
+		log.Fatalf("unable to create %s: %s", outputFilename, err)
+	}
+	defer shimFile.Close()
+
+	shimInfo, err := shimFile.Stat()
+	if err != nil {
+		log.Fatalf("unable to create %s: %s", outputFilename, err)
 	}
 
-	shim, err := archive.CreateHeader(header)
+	shimHeader, err := zip.FileInfoHeader(shimInfo)
 	if err != nil {
-		log.Fatalf("unable to create %s: %s", packageName, err)
+		log.Fatalf("unable to create %s: %s", outputFilename, err)
+	}
+	shimHeader.Name = "cloud-functions-go-shim"
+
+	shim, err := archive.CreateHeader(shimHeader)
+	if err != nil {
+		log.Fatalf("unable to create %s: %s", outputFilename, err)
 	}
 
-	shimData, err := Asset("google-cloud-functions-go")
+	_, err = io.Copy(shim, shimFile)
 	if err != nil {
-		log.Fatalf("unable to create %s: %s", packageName, err)
+		log.Fatalf("unable to create %s: %s", outputFilename, err)
 	}
-	shim.Write(shimData)
 
 	err = archive.Close()
 	if err != nil {
-		log.Fatalf("unable to create %s: %s", packageName, err)
+		log.Fatalf("unable to create %s: %s", outputFilename, err)
 	}
 
-	fmt.Printf("wrote %s", packageName)
+	fmt.Printf("wrote %s\n", outputFilename)
 
 	os.Exit(0)
 }
 
-
-const eventJavascriptShim = `const spawnSync = require('child_process').spawnSync;
+const nodejsEventTemplate = `const spawnSync = require('child_process').spawnSync;
 
 exports.{{.EntryPoint}} = function {{.EntryPoint}}(event, callback) {
   var args = [
@@ -137,7 +160,7 @@ exports.{{.EntryPoint}} = function {{.EntryPoint}}(event, callback) {
     '--plugin-path', '{{.PluginPath}}'
   ];
 
-  result = spawnSync('./google-cloud-functions-go', args, {
+  result = spawnSync('./cloud-functions-go-shim', args, {
     input: JSON.stringify(event),
     stdio: 'pipe',
   });
@@ -152,7 +175,7 @@ exports.{{.EntryPoint}} = function {{.EntryPoint}}(event, callback) {
 };
 `
 
-const httpJavascriptShim = `const spawnSync = require('child_process').spawnSync;
+const nodejsHTTPTemplate = `const spawnSync = require('child_process').spawnSync;
 
 exports.{{.EntryPoint}} = function {{.EntryPoint}}(req, res) {
   var requestBody;
@@ -184,7 +207,7 @@ exports.{{.EntryPoint}} = function {{.EntryPoint}}(req, res) {
     '--plugin-path', '{{.PluginPath}}'
   ];
 
-  result = spawnSync('./google-cloud-functions-go', args, {
+  result = spawnSync('./cloud-functions-go-shim', args, {
     input: JSON.stringify(httpRequest),
     stdio: 'pipe',
   });

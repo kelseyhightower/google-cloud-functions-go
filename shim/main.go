@@ -26,9 +26,9 @@ var (
 )
 
 func main() {
-	flag.StringVar(&entryPoint, "entry-point", "F", "the name of a Go function that will be executed when the Google Cloud Function is triggered.")
-	flag.StringVar(&eventType, "event-type", "", "The Google Cloud Function event type. [http|event]")
-	flag.StringVar(&pluginPath, "plugin-path", "function.so", "The path to the Go plugin that exports the function to be executed.")
+	flag.StringVar(&entryPoint, "entry-point", "F", "the name of a Go function that will be executed when the Cloud Function is triggered.")
+	flag.StringVar(&eventType, "event-type", "", "The Cloud Function event type: http or event")
+	flag.StringVar(&pluginPath, "plugin-path", "functions.so", "The path to the Go plugin that exports the function to be executed.")
 	flag.Parse()
 
 	if eventType == "" {
