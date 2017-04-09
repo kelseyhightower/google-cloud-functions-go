@@ -1,5 +1,7 @@
-#!/bin/bash
-cp cmd/go-http-shim/main.go . 
-go build -o function .
-zip -r go-serverless.zip function index.js
-rm main.go
+#!/bin/sh
+
+GOOS=linux go build -o google-cloud-functions-go .
+go-bindata -o bindata.go google-cloud-functions-go
+rm google-cloud-functions-go
+
+go build -o google-cloud-functions-go .

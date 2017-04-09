@@ -1,0 +1,6 @@
+{
+  "resource": "foo",
+  "eventId": "12345678",
+  "eventType": "PubSubMessage",
+  "timestamp": "May 15th 2017"
+}

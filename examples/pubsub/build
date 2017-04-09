@@ -1,0 +1,3 @@
+#!/bin/sh
+
+go build -buildmode=plugin -o function.so main.go

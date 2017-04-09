@@ -1,4 +1,4 @@
-// Copyright 2016 Google Inc. All Rights Reserved.
+// Copyright 2017 Google Inc. All Rights Reserved.
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -14,36 +14,38 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
-	"log"
+	"fmt"
+	"net/http"
 	"net/http/httptest"
-	"os"
+	"plugin"
 	"strings"
+
+	"github.com/kelseyhightower/google-cloud-functions-go/event"
 )
 
-type HTTPRequest struct {
-	Body       string            `json:"body"`
-	Header     map[string]string `json:"header"`
-	Method     string            `json:"method"`
-	RemoteAddr string            `json:"remote_addr"`
-	URL        string            `json:"url"`
-}
+func eventHandler(f plugin.Symbol, data []byte) (string, error) {
+	var e event.Event
+	var message string
 
-type HTTPResponse struct {
-	Body       string            `json:"body"`
-	Header     map[string]string `json:"header"`
-	StatusCode int               `json:"status_code"`
-}
-
-func main() {
-	stdin, err := ioutil.ReadAll(os.Stdin)
+	err := json.Unmarshal(data, &e)
 	if err != nil {
-		log.Fatal(err)
+		return "", fmt.Errorf("unable to load the event: %s", err)
 	}
-	var httpRequest HTTPRequest
-	err = json.Unmarshal(stdin, &httpRequest)
+
+	message, err = f.(func(event.Event) (string, error))(e)
 	if err != nil {
-		log.Fatal(err)
+		return "", err
+	}
+
+	return message, nil
+}
+
+func httpHandler(f plugin.Symbol, data []byte) (string, error) {
+	var httpRequest event.HTTP
+
+	err := json.Unmarshal(data, &httpRequest)
+	if err != nil {
+		return "", fmt.Errorf("unable to load the event: %s", err)
 	}
 
 	r := httptest.NewRequest(httpRequest.Method, httpRequest.URL, bytes.NewBufferString(httpRequest.Body))
@@ -55,7 +57,7 @@ func main() {
 
 	w := httptest.NewRecorder()
 
-	F(w, r)
+	f.(func(http.ResponseWriter, *http.Request))(w, r)
 
 	resp := w.Result()
 
@@ -63,16 +65,16 @@ func main() {
 	for k, v := range resp.Header {
 		header[k] = strings.Join(v, ",")
 	}
-	httpResponse := HTTPResponse{
+
+	out, err := json.Marshal(&event.HTTPResponse{
 		Body:       w.Body.String(),
 		Header:     header,
 		StatusCode: resp.StatusCode,
-	}
+	})
 
-	out, err := json.Marshal(&httpResponse)
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
-	os.Stdout.Write(out)
+	return string(out), nil
 }
