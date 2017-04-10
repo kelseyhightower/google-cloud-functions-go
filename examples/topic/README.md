@@ -1,24 +1,27 @@
-# Event Function
+# Google Cloud Functions Go: Topic Example
 
 ## Usage
 
-Build the plugin:
+Build the Go plugin:
 
 ```
-go build -buildmode=plugin -o function.so main.go
+go build -buildmode=plugin -o functions.so main.go
 ```
 
-Create the Google Cloud Function source package:
+Test the function:
 
 ```
-google-cloud-functions-go --package \
-  --entry-point F \
-  --event-type event \
-  --plugin-path function.so
+cat event.json | cloud-functions-go-shim -entry-point F -event-type topic -plugin-path functions.so
+```
+
+Create the Cloud Function zip archive:
+
+```
+cloud-functions-go --entry-point F --event-type topic --plugin-path functions.so
 ```
 
 ```
-wrote F-event-1491763297.zip
+wrote F-topic-1491763297.zip
 ```
 
-Use the Cloud Function UI to deploy the fuction from a zip file.
+Use the Cloud Functions UI to deploy the fuction from a ZIP upload, set the fuction to execute to `F`, and the trigger to `Cloud Pub/Sub topic`
