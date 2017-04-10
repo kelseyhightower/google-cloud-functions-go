@@ -19,8 +19,6 @@ cat examples/topic/event.json | \
   cloud-functions-go-shim -entry-point F -event-type topic -plugin-path functions.so 
 ```
 
-> processing event: 12345678
-
 ### Packaging and deployment
 
 The `cloud-functions-go` command is used to package your function along with the necessary shims for execution in the Cloud Functions environment. 
@@ -29,7 +27,7 @@ The `cloud-functions-go` command is used to package your function along with the
 cloud-functions-go -entry-point F -event-type topic -plugin-path functions.so
 ```
 
-> wrote F-event-1491796383.zip
+> Packages are created using the ${function-name}-${event-type}-${timestamp}.zip format.
 
 The zip archive containes the following files:
 
@@ -38,4 +36,4 @@ The zip archive containes the following files:
 * cloud-functions-go-shim - the shim between node.js and Go 
 ```
 
-Upload `F-event-1491796383.zip` then set the function to execute to `F` and the trigger to `Cloud Pub/Sub topic`.
+Upload `F-topic-1491796383.zip` then set the function to execute to `F` and the trigger to `Cloud Pub/Sub topic`.
