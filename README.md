@@ -8,6 +8,10 @@ Google Cloud Functions only supports node.js so shims must be used to wrap calls
 
 > The use of Go plugins limit the runtime environment to Linux.
 
+## Install
+
+[Download](https://github.com/kelseyhightower/google-cloud-functions-go/releases) the `cloud-functions-go` and `cloud-functions-go-shim` binaries and put them in your path.
+
 ## Usage
 
 ### Build
