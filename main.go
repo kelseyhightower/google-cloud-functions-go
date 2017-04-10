@@ -167,12 +167,12 @@ exports.{{.EntryPoint}} = function {{.EntryPoint}}(event, callback) {
     stdio: 'pipe',
   });
 
+  console.log(result.stderr.toString());
+
   if (result.status !== 0) {
-    console.log(result.stderr.toString());
     callback(new Error(result.stderr.toString()));
     return;
   } else {
-    console.log(result.stderr.toString());
     callback(null, result.stdout.toString());
   }
 };
