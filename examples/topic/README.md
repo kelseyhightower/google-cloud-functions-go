@@ -17,7 +17,7 @@ cat event.json | cloud-functions-go-shim -entry-point F -event-type topic -plugi
 Create the Cloud Function zip archive:
 
 ```
-cloud-functions-go --entry-point F --event-type topic --plugin-path functions.so
+cloud-functions-go -entry-point F -event-type topic -plugin-path functions.so
 ```
 
 ```
