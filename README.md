@@ -1,6 +1,12 @@
 # Google Cloud Functions Go 
 
-This project contains a collection of tutorials and hacks for using Go with [Google Cloud Functions](https://cloud.google.com/functions).
+This project contains a collection of tutorials and hacks for using Go with [Google Cloud Functions](https://cloud.google.com/functions). 
+
+## How it Works
+
+Google Cloud Functions only supports node.js so shims must be used to wrap calls to Go code. The `cloud-functions-go-shim` binary bridges node.js and Go functions. Each Go function to be executed must be exported from a [Go plugin](https://golang.org/pkg/plugin/).
+
+> The use of Go plugins limit the runtime environment to Linux.
 
 ## Usage
 
@@ -20,6 +26,8 @@ Use the `cloud-functions-go-shim` to test your function:
 cat examples/topic/event.json | \
   cloud-functions-go-shim -entry-point F -event-type topic -plugin-path functions.so 
 ```
+
+> Testing only works on Linux; a current limitation of Go plugins.
 
 ### Package
 
