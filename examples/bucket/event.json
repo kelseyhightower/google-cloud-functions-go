@@ -1,0 +1,24 @@
+{
+  "timestamp":"2017-04-10T02:08:41.559Z",
+  "eventType":"providers/cloud.storage/eventTypes/object.change",
+  "resource":"projects/_/buckets/cloudfunctionstest/objects/go-serverless.zip#1491782113967685",
+  "data":{
+    "kind":"storage#object",
+    "resourceState":"not_exists",
+    "id":"cloudfunctionstest/go-serverless.zip/1491782113967685",
+    "selfLink":"https://www.googleapis.com/storage/v1/b/cloudfunctionstest/o/go-serverless.zip",
+    "name":"go-serverless.zip",
+    "bucket":"cloudfunctionstest",
+    "generation":"1491782113967685",
+    "metageneration":"1",
+    "contentType":"application/zip",
+    "timeCreated":"2017-04-09T23:55:13.947Z",
+    "updated":"2017-04-09T23:55:13.947Z",
+    "timeDeleted":"2017-04-10T02:08:41.559Z",
+    "storageClass":"REGIONAL",
+    "size":"12669466",
+    "md5Hash":"NDg1NDgzN2EyYzZmMjEwYWU4ZGQ3MzE3OGI3MTE1OTI=",
+    "mediaLink":"https://www.googleapis.com/storage/v1/b/cloudfunctionstest/o/go-serverless.zip?generation=1491782113967685&alt=media",
+    "crc32c":"SsHDlA=="
+  }
+}

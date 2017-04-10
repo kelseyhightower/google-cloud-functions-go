@@ -14,7 +14,7 @@ go build -buildmode=plugin -o functions.so examples/pubsub/main.go
 cat examples/pubsub/event.json | \
   cloud-functions-go-shim \
     -entry-point F \
-    -event-type event \
+    -event-type topic \
     -plugin-path functions.so 
 ```
 
@@ -27,7 +27,7 @@ At this point everything is working. Now we need to package our function and the
 ```
 cloud-functions-go -o go-serverless.zip \
   -entry-point F \
-  -event-type event \
+  -event-type topic \
   -plugin-path functions.so
 ```
 

@@ -25,7 +25,7 @@ cat examples/http/request.json | \
 ```
 cloud-functions-go -o go-serverless.zip \
   -entry-point F \
-  -event-type event \
+  -event-type http \
   -plugin-path functions.so
 ```
 
@@ -36,7 +36,7 @@ Once the function is deployed [invoke it with an HTTP trigger](https://cloud.goo
 Example:
 
 ```
-curl -X POST https://us-central1-hightowerlabs.cloudfunctions.net/go-serverless \
+curl -X POST https://us-central1-kubestack.cloudfunctions.net/http-test   \
   -H "Content-Type: text/plain" \
   --data 'Go Serverless!'
 ```

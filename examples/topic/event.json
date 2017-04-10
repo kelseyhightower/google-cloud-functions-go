@@ -1,0 +1,13 @@
+{
+  "eventId":"91625316029748",
+  "timestamp":"2017-04-10T01:53:56.293Z",
+  "eventType":"providers/cloud.pubsub/eventTypes/topic.publish",
+  "resource":"projects/kubestack/topics/functions",
+  "data":{
+    "data":"dGVzdA==",
+    "attributes":{
+      "age":"22"
+    },
+    "@type":"type.googleapis.com/google.pubsub.v1.PubsubMessage"
+  }
+}

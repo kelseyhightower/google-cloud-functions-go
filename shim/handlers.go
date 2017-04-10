@@ -23,8 +23,8 @@ import (
 	"github.com/kelseyhightower/google-cloud-functions-go/event"
 )
 
-func eventHandler(f plugin.Symbol, data []byte) (string, error) {
-	var e event.Event
+func objectChangeHandler(f plugin.Symbol, data []byte) (string, error) {
+	var e event.ObjectChange
 	var message string
 
 	err := json.Unmarshal(data, &e)
@@ -32,7 +32,24 @@ func eventHandler(f plugin.Symbol, data []byte) (string, error) {
 		return "", fmt.Errorf("unable to load the event: %s", err)
 	}
 
-	message, err = f.(func(event.Event) (string, error))(e)
+	message, err = f.(func(event.ObjectChange) (string, error))(e)
+	if err != nil {
+		return "", err
+	}
+
+	return message, nil
+}
+
+func topicPublishHandler(f plugin.Symbol, data []byte) (string, error) {
+	var e event.TopicPublish
+	var message string
+
+	err := json.Unmarshal(data, &e)
+	if err != nil {
+		return "", fmt.Errorf("unable to load the event: %s", err)
+	}
+
+	message, err = f.(func(event.TopicPublish) (string, error))(e)
 	if err != nil {
 		return "", err
 	}

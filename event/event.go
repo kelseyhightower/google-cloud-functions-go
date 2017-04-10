@@ -11,19 +11,45 @@
 
 package event
 
-type Event struct {
-	Data      interface{} `json:"data"`
-	EventID   string      `json:"eventId"`
-	Timestamp string      `json:"timestamp"`
-	EventType string      `json:"eventType"`
-	Resource  string      `json:"resource"`
+type ObjectChange struct {
+	Data      StorageObject `json:"data"`
+	EventId   string        `json:"eventId"`
+	Timestamp string        `json:"timestamp"`
+	EventType string        `json:"eventType"`
+	Resource  string        `json:"resource"`
 }
 
-type PubsubMessage struct {
-	Attributes  map[string]string `json:"attributes"`
-	Data        string            `json:"data"`
-	MessageId   string            `json:"messageId"`
-	PublishTime string            `json:"publishTime"`
+type StorageObject struct {
+	Kind           string `json:"kind"`
+	ResourceState  string `json:"resourceState"`
+	Id             string `json:"id"`
+	SelfLink       string `json:"selfLink"`
+	Name           string `json:"name"`
+	Bucket         string `json:"bucket"`
+	Generation     string `json:"generation"`
+	Metageneration string `json:"metageneration"`
+	ContentType    string `json:"contentType"`
+	TimeCreated    string `json:"timeCreated"`
+	Updated        string `json:"updated"`
+	TimeDeleted    string `json:"timeDeleted"`
+	StorageClass   string `json:"storageClass"`
+	Size           string `json:"size"`
+	MD5Hash        string `json:"md5Hash"`
+	MediaLink      string `json:"mediaLink"`
+	CRC32c         string `json:"crc32c"`
+}
+
+type TopicPublish struct {
+	Data      PubSubMessage `json:"data"`
+	EventId   string        `json:"eventId"`
+	Timestamp string        `json:"timestamp"`
+	EventType string        `json:"eventType"`
+	Resource  string        `json:"resource"`
+}
+
+type PubSubMessage struct {
+	Attributes string `json:"attributes"`
+	Data       string `json:"data"`
 }
 
 type HTTP struct {

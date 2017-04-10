@@ -38,7 +38,7 @@ func generateOutputFilename() string {
 
 func main() {
 	flag.StringVar(&entryPoint, "entry-point", "F", "the name of a Go function that will be executed when the Cloud Function is triggered.")
-	flag.StringVar(&eventType, "event-type", "event", "The Cloud Function event type: http or event")
+	flag.StringVar(&eventType, "event-type", "event", "The Cloud Function event type. (bucket, http, or topic)")
 	flag.StringVar(&outputFilename, "o", generateOutputFilename(), "The output file name.")
 	flag.StringVar(&pluginPath, "plugin-path", "functions.so", "The path to the Go plugin that exports the function to be executed.")
 	flag.StringVar(&shimPath, "shim-path", "cloud-functions-go-shim", "The path to the cloud-functions-go-shim binary.")

@@ -20,14 +20,14 @@ import (
 )
 
 var (
-	entryPoint   string
-	eventType    string
-	pluginPath   string
+	entryPoint string
+	eventType  string
+	pluginPath string
 )
 
 func main() {
 	flag.StringVar(&entryPoint, "entry-point", "F", "the name of a Go function that will be executed when the Cloud Function is triggered.")
-	flag.StringVar(&eventType, "event-type", "", "The Cloud Function event type: http or event")
+	flag.StringVar(&eventType, "event-type", "", "The Cloud Function event type. (bucket, http, or topic)")
 	flag.StringVar(&pluginPath, "plugin-path", "functions.so", "The path to the Go plugin that exports the function to be executed.")
 	flag.Parse()
 
@@ -53,10 +53,12 @@ func main() {
 	var message string
 
 	switch eventType {
-	case "event":
-		message, err = eventHandler(f, stdin)
+	case "bucket":
+		message, err = objectChangeHandler(f, stdin)
 	case "http":
 		message, err = httpHandler(f, stdin)
+	case "topic":
+		message, err = topicPublishHandler(f, stdin)
 	default:
 		log.Fatalf("invalid event type: %s", eventType)
 	}
