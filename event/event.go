@@ -48,8 +48,8 @@ type TopicPublish struct {
 }
 
 type PubSubMessage struct {
-	Attributes string `json:"attributes"`
-	Data       string `json:"data"`
+	Attributes map[string]string `json:"attributes"`
+	Data       string            `json:"data"`
 }
 
 type HTTP struct {
