@@ -12,6 +12,8 @@
 package main
 
 import (
+	"encoding/base64"
+	"fmt"
 	"log"
 
 	"github.com/kelseyhightower/google-cloud-functions-go/event"
@@ -20,7 +22,7 @@ import (
 func F(e event.TopicPublish) (string, error) {
 	log.SetFlags(0)
 
-	log.Printf("processing event: %s", e.EventID)
+	log.Printf("processing event: %s", e.EventId)
 
 	data, err := base64.StdEncoding.DecodeString(e.Data.Data)
 	if err != nil {
