@@ -2,6 +2,9 @@
 
 This project contains a collection of tutorials and hacks for using Go with [Google Cloud Functions](https://cloud.google.com/functions). 
 
+## Disclaimer
+This is not an official Google product (experimental or otherwise), it is just code that happens to be owned by Google.
+
 ## How it Works
 
 Google Cloud Functions only supports node.js so shims must be used to wrap calls to Go code. The `cloud-functions-go-shim` binary bridges node.js and Go functions. Each Go function to be executed must be exported from a [Go plugin](https://golang.org/pkg/plugin/).
