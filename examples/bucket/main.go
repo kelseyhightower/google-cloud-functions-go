@@ -17,7 +17,7 @@ import (
 	"github.com/kelseyhightower/google-cloud-functions-go/event"
 )
 
-func F(e event.StorageObject) (string, error) {
+func F(e event.ObjectChange) (string, error) {
 	log.SetFlags(0)
 
 	log.Printf("processing object: %s", e.Data.Id)
