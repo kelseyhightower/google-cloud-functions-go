@@ -73,7 +73,9 @@ func main() {
 	var tmpl string
 
 	switch eventType {
-	case "event":
+	case "topic":
+		tmpl = nodejsEventTemplate
+	case "bucket":
 		tmpl = nodejsEventTemplate
 	case "http":
 		tmpl = nodejsHTTPTemplate
