@@ -25,12 +25,12 @@ At this point everything is working. Now we need to package our function and the
 ## Google Cloud Functions
 
 ```
-cloud-functions-go -o go-serverless.zip \
+cloud-functions-go \
   -entry-point F \
   -event-type topic \
   -plugin-path functions.so
 ```
 
-> wrote go-serverless.zip
+> wrote F-event-1491796383.zip
 
-Upload `go-serverless.zip` then set the function to execute to `F` and the trigger to `Cloud Pub/Sub topic`.
+Upload `F-event-1491796383.zip` then set the function to execute to `F` and the trigger to `Cloud Pub/Sub topic`.
