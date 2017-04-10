@@ -5,13 +5,13 @@ This project contains a collection of tutorials and hacks for using Go with [Goo
 ## Usage
 
 ```
-go build -buildmode=plugin -o functions.so examples/pubsub/main.go
+go build -buildmode=plugin -o functions.so examples/topic/main.go
 ```
 
 ### Testing your function
 
 ```
-cat examples/pubsub/event.json | \
+cat examples/topic/event.json | \
   cloud-functions-go-shim \
     -entry-point F \
     -event-type topic \
